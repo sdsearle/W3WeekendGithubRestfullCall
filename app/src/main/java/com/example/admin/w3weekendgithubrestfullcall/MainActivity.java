@@ -54,37 +54,9 @@ public class MainActivity extends AppCompatActivity {
         btnFollowers = (Button) findViewById(R.id.btnFollowers);
         btnFollowing = (Button) findViewById(R.id.btnFollowing);
 
-
-        final Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message message) {
-                String s = message.getData().getString("UserName");
-                if(s == null){
-                    Toast.makeText(MainActivity.this, "No User Found", Toast.LENGTH_SHORT).show();
-                    currentURL = "";
-                    ivUserPic.setImageDrawable(getResources().getDrawable(R.drawable.githubicon));
-                    tvUserName.setText("");
-                    return  false;
-                }
-                tvUserName.setText(s);
-                String rAmnt = message.getData().getString("repoAmnt");
-                String followersAmnt = message.getData().getString("followersAmnt");;
-                String followingAmnt = message.getData().getString("followingAmnt");;
-                btnRepo.setText("Repositories: " + rAmnt);
-                btnFollowers.setText("Followers: " + followersAmnt);
-                btnFollowing.setText("Following: " + followingAmnt);
-
-                byte[] byteArray = message.getData().getByteArray("UserPic");
-                if(byteArray != null) {
-                    Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                    ivUserPic.setImageBitmap(bm);
-                }
-                return false;
-            }
-        });
         svUserName.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
+            public boolean onQueryTextSubmit(final String s) {
                 client = new OkHttpClient();
                 currentURL = BASE_URL + s;
 
@@ -98,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                             String response = client.newCall(request).execute().body().string();
                             Log.d(TAG, "run: " + response);
 
-                            Bundle bundle = new Bundle();
+                            //Bundle bundle = new Bundle();
 
                             Gson gson = new Gson();
                             myResponse = gson.fromJson(response, Response.class);
@@ -106,18 +78,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "run: " + myResponse.getLogin());
 
                             //get obj info from github
-                            String userName = myResponse.getLogin();
-                            bundle.putString("UserName",userName);
+                            final String userName = myResponse.getLogin();
 
-                            String repoAmnt = myResponse.getPublicRepos() + "";
-                            String followersAmnt = myResponse.getFollowers() + "";
-                            String followingAmnt = myResponse.getFollowing() + "";
+                            final String repoAmnt = myResponse.getPublicRepos() + "";
+                            final String followersAmnt = myResponse.getFollowers() + "";
+                            final String followingAmnt = myResponse.getFollowing() + "";
 
-                            bundle.putString("repoAmnt",repoAmnt);
-                            bundle.putString("followersAmnt",followersAmnt);
-                            bundle.putString("followingAmnt",followingAmnt);
-
-                            //bundle.putString("UserPic", myResponse.getAvatarUrl());
                             Bitmap bm = null;
                             try {
                                 InputStream inputStream = new URL(myResponse.getAvatarUrl()).openStream();
@@ -126,17 +92,25 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            if(bm != null) {
-                                bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                                bundle.putByteArray("UserPic", baos.toByteArray());
-                            }
-
-                            //send message
-                            Message message = new Message();
-                            message.setData(bundle);
-                            handler.sendMessage(message);
-
+                            final Bitmap finalBm = bm;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(userName == null){
+                                        Toast.makeText(MainActivity.this, "No User Found", Toast.LENGTH_SHORT).show();
+                                        currentURL = "";
+                                        ivUserPic.setImageDrawable(getResources().getDrawable(R.drawable.githubicon));
+                                        tvUserName.setText("");
+                                    }
+                                    else {
+                                        tvUserName.setText(userName);
+                                        btnRepo.setText("Repositories: " + repoAmnt);
+                                        btnFollowers.setText("Followers: " + followersAmnt);
+                                        btnFollowing.setText("Following: " + followingAmnt);
+                                        ivUserPic.setImageBitmap(finalBm);
+                                    }
+                                }
+                            });
 
                         } catch (IOException e) {
                             e.printStackTrace();

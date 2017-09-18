@@ -50,23 +50,6 @@ public class RepoActivity extends AppCompatActivity {
         final Request request = new Request.Builder()
                 .url(repoURL).build();
 
-        final Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message message) {
-
-                List<RepoResponse> repolist = (List<RepoResponse>) message.getData().getSerializable("RepoArray");
-                RecyclerView rvList = (RecyclerView) findViewById(R.id.rvRepoList);
-                rvList.setAdapter(new RepoRecyclerViewAdapter(getBaseContext(), myResponse));
-                layoutManager = new LinearLayoutManager(getBaseContext());
-                itemAnimator = new DefaultItemAnimator();
-                rvList.setLayoutManager(layoutManager);
-                rvList
-                        .setItemAnimator(itemAnimator);
-
-                return false;
-            }
-        });
-
         new Thread(new Runnable() {
 
 
@@ -76,32 +59,25 @@ public class RepoActivity extends AppCompatActivity {
                     String response = client.newCall(request).execute().body().string();
                     Log.d(TAG, "run: " + response);
 
-                    Bundle bundle = new Bundle();
+                    //Bundle bundle = new Bundle();
 
                     Gson gson = new Gson();
                     Type listType = new TypeToken<List<RepoResponse>>(){}.getType();
                     myResponse = (List<RepoResponse>) gson.fromJson(response, listType);
 
-                    Log.d(TAG, "run: " + myResponse.get(1));
+                    //Log.d(TAG, "run: " + myResponse.get(1));
 
-                    bundle.putSerializable("RepoArray", (Serializable) myResponse);
-
-                    //get obj info from github
-                   /* String repoName = myResponse.getName();
-                    bundle.putStringArrayList("RepoName",repoName);
-
-                    String repoDescription = myResponse.getDescription();
-                    bundle.putString("RepoDescription",repoDescription);
-
-                    String repoLastUpdate = myResponse.getUpdatedAt();*/
-
-
-
-                    //send message
-                    Message message = new Message();
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            RecyclerView rvList = (RecyclerView) findViewById(R.id.rvRepoList);
+                            rvList.setAdapter(new RepoRecyclerViewAdapter(getBaseContext(), myResponse));
+                            layoutManager = new LinearLayoutManager(getBaseContext());
+                            itemAnimator = new DefaultItemAnimator();
+                            rvList.setLayoutManager(layoutManager);
+                            rvList.setItemAnimator(itemAnimator);
+                        }
+                    });
 
                 } catch (IOException e) {
                     e.printStackTrace();

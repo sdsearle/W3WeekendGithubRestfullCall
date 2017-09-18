@@ -45,7 +45,7 @@ public class FollowersFollowingActivity extends AppCompatActivity {
         final Request request = new Request.Builder()
                 .url(repoURL).build();
 
-        final Handler handler = new Handler(new Handler.Callback() {
+        /*final Handler handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message message) {
 
@@ -55,12 +55,11 @@ public class FollowersFollowingActivity extends AppCompatActivity {
                 layoutManager = new LinearLayoutManager(getBaseContext());
                 itemAnimator = new DefaultItemAnimator();
                 rvList.setLayoutManager(layoutManager);
-                rvList
-                        .setItemAnimator(itemAnimator);
+                rvList.setItemAnimator(itemAnimator);
 
                 return false;
             }
-        });
+        });*/
 
         new Thread(new Runnable() {
 
@@ -71,7 +70,7 @@ public class FollowersFollowingActivity extends AppCompatActivity {
                     String response = client.newCall(request).execute().body().string();
                     Log.d(TAG, "run: " + response);
 
-                    Bundle bundle = new Bundle();
+                    //Bundle bundle = new Bundle();
 
                     Gson gson = new Gson();
                     Type listType = new TypeToken<List<Response>>() {
@@ -80,22 +79,25 @@ public class FollowersFollowingActivity extends AppCompatActivity {
 
                     Log.d(TAG, "run: " + myResponse);
 
-                    bundle.putSerializable("FollowArray", (Serializable) myResponse);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
 
-                    //get obj info from github
-                   /* String repoName = myResponse.getName();
-                    bundle.putStringArrayList("RepoName",repoName);
+                            RecyclerView rvList = (RecyclerView) findViewById(R.id.rvFollowList);
+                            rvList.setAdapter(new FollowersRecyclerViewAdapter(getBaseContext(), myResponse));
+                            layoutManager = new LinearLayoutManager(getBaseContext());
+                            itemAnimator = new DefaultItemAnimator();
+                            rvList.setLayoutManager(layoutManager);
+                            rvList.setItemAnimator(itemAnimator);
+                        }
+                    });
 
-                    String repoDescription = myResponse.getDescription();
-                    bundle.putString("RepoDescription",repoDescription);
-
-                    String repoLastUpdate = myResponse.getUpdatedAt();*/
-
+                    /*bundle.putSerializable("FollowArray", (Serializable) myResponse);
 
                     //send message
                     Message message = new Message();
                     message.setData(bundle);
-                    handler.sendMessage(message);
+                    handler.sendMessage(message);*/
 
 
                 } catch (IOException e) {
