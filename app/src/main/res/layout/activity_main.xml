@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.admin.w3weekendgithubrestfullcall.MainActivity"
+    android:orientation="vertical">
+
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/svUserName"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvUserName"
+        android:textSize="28sp"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="300sp"
+        android:layout_gravity="center"
+        android:id="@+id/ivUserPic"
+        android:src="@drawable/githubicon"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3">
+
+        <Button android:layout_columnSpan="1"
+            android:paddingRight="20sp"
+            android:paddingLeft="20sp"
+            android:id="@+id/btnRepo"
+            android:layout_gravity="left"
+            android:text="Repositories"
+            android:onClick="toActivity"/>
+
+        <Button android:layout_columnSpan="1"
+            android:paddingRight="20sp"
+            android:paddingLeft="20sp"
+            android:id="@+id/btnFollowers"
+            android:layout_gravity="center"
+            android:text="Followers"
+            android:onClick="toActivity"/>
+
+        <Button android:layout_columnSpan="1"
+            android:id="@+id/btnFollowing"
+            android:paddingRight="20sp"
+            android:paddingLeft="20sp"
+            android:text="Following"
+            android:onClick="toActivity"/>
+    </GridLayout>
+</LinearLayout>
